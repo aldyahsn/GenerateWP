@@ -20,7 +20,7 @@ set_timezone() {
 }
 
 # Check if running as root
-if [ "$EUID" -ne 0 ]; then 
+if [ "$EUID" -ne 0 ]; then
     echo "Please run this script as root."
     exit
 fi
@@ -99,25 +99,25 @@ else
     display_message "MariaDB is already secured."
 fi
 
-# Step 8: Add PHP 7.4 Repository
-display_message "Adding PHP 7.4 repository..."
+# Step 8: Add PHP 8.4 Repository
+display_message "Adding PHP 8.2 repository..."
 sudo LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php
 sudo apt update -y
 
 # Step 9: Install PHP 7.4 and necessary PHP extensions
-display_message "Installing PHP 7.4 and common PHP extensions..."
-sudo apt install php7.4 php7.4-fpm php7.4-mysql php7.4-cli php7.4-curl php7.4-zip php7.4-xml php7.4-mbstring php7.4-gd php7.4-soap php7.4-intl php7.4-bcmath php7.4-xmlrpc php7.4-json -y
+display_message "Installing PHP 8.2 and common PHP extensions..."
+sudo apt install php8.2 php8.2-fpm php8.2-mysql php8.2-cli php8.2-curl php8.2-zip php8.2-xml php8.2-mbstring php8.2-gd php8.2-soap php8.2-intl php8.2-bcmath php8.2-xmlrpc php8.2-common  -y
 
 # Configure PHP limits
 display_message "Configuring PHP settings..."
-sudo sed -i "s/upload_max_filesize = .*/upload_max_filesize = 64M/" /etc/php/7.4/fpm/php.ini
-sudo sed -i "s/post_max_size = .*/post_max_size = 64M/" /etc/php/7.4/fpm/php.ini
-sudo sed -i "s/memory_limit = .*/memory_limit = 256M/" /etc/php/7.4/fpm/php.ini
-sudo sed -i "s/max_execution_time = .*/max_execution_time = 300/" /etc/php/7.4/fpm/php.ini
+sudo sed -i "s/upload_max_filesize = .*/upload_max_filesize = 256M/" /etc/php/8.2/fpm/php.ini
+sudo sed -i "s/post_max_size = .*/post_max_size = 256M/" /etc/php/8.2/fpm/php.ini
+sudo sed -i "s/memory_limit = .*/memory_limit = 512M/" /etc/php/8.4/fpm/php.ini
+sudo sed -i "s/max_execution_time = .*/max_execution_time = 300/" /etc/php/8.2/fpm/php.ini
 
 # Restart PHP-FPM service
-sudo systemctl restart php7.4-fpm
-display_message "PHP 7.4 installed and configured."
+sudo systemctl restart php8.2-fpm
+display_message "PHP 8.2 installed and configured."
 
 # Step 10: Create /srv/wp directory and set permissions
 display_message "Creating /srv/wp directory and setting permissions..."
@@ -133,3 +133,5 @@ sudo ufw enable
 display_message "UFW firewall configured to allow Nginx traffic."
 
 display_message "DONE"
+
+
