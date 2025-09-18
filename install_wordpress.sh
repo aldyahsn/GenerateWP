@@ -32,11 +32,11 @@ db_user="${db_name}_$(generate_random_string 8)"
 db_password=$(generate_random_string 16)
 
 # Prompt for PHP version, with default as PHP 7.4
-read -p "Enter PHP version to install (e.g., 7.4, 8.0, 8.1, 8.2) [default is 7.4]: " php_version
-php_version=${php_version:-7.4}
+read -p "Enter PHP version to install (e.g., 7.4, 8.0, 8.1, 8.2) [default is 8.2]: " php_version
+php_version=${php_version:-8.2}
 
 # Check if running as root
-if [ "$EUID" -ne 0 ]; then 
+if [ "$EUID" -ne 0 ]; then
     echo "Please run this script as root."
     exit
 fi
@@ -71,8 +71,8 @@ sudo systemctl start mariadb
 sudo systemctl enable mariadb
 
 # Secure MariaDB installation (optional)
-display_message "Securing MariaDB installation..."
-sudo mysql_secure_installation
+#display_message "Securing MariaDB installation..."
+#sudo mysql_secure_installation
 
 # Check if the database already exists
 db_exists=$(sudo mysql -e "SHOW DATABASES LIKE '${db_name}';" | grep "${db_name}")
@@ -99,18 +99,18 @@ sudo mysql -e "FLUSH PRIVILEGES;"
 display_message "Downloading and configuring WordPress..."
 sudo curl -O https://wordpress.org/latest.tar.gz
 sudo tar -xzf latest.tar.gz
-sudo mkdir -p /srv/$domain_without_www
-sudo mv wordpress/* /srv/$domain_without_www
-sudo chown -R www-data:www-data /srv/$domain_without_www
-sudo chmod -R 755 /srv/$domain_without_www
+sudo mkdir -p /var/www/$domain_without_www
+sudo mv wordpress/* /var/www/$domain_without_www
+sudo chown -R www-data:www-data /var/www/$domain_without_www
+sudo chmod -R 755 /var/www/$domain_without_www
 
 # Create WordPress wp-config.php
-sudo mv /srv/$domain_without_www/wp-config-sample.php /srv/$domain_without_www/wp-config.php
+sudo mv /var/www/$domain_without_www/wp-config-sample.php /var/www/$domain_without_www/wp-config.php
 
 # Update wp-config.php with database information
-sudo sed -i "s/database_name_here/${db_name}/" /srv/$domain_without_www/wp-config.php
-sudo sed -i "s/username_here/${db_user}/" /srv/$domain_without_www/wp-config.php
-sudo sed -i "s/password_here/${db_password}/" /srv/$domain_without_www/wp-config.php
+sudo sed -i "s/database_name_here/${db_name}/" /var/www/$domain_without_www/wp-config.php
+sudo sed -i "s/username_here/${db_user}/" /var/www/$domain_without_www/wp-config.php
+sudo sed -i "s/password_here/${db_password}/" /var/www/$domain_without_www/wp-config.php
 
 # Step 4: Configure Nginx server block
 display_message "Configuring Nginx for domain $server_names..."
@@ -119,7 +119,7 @@ sudo tee /etc/nginx/sites-available/$domain_without_www > /dev/null <<EOL
 server {
     listen 80;
     server_name $server_names;
-    root /srv/$domain_without_www;
+    root /var/www/$domain_without_www;
     index index.php index.html index.htm;
 
     location / {
@@ -155,7 +155,7 @@ display_message "Installing Certbot and generating SSL certificates using Let's 
 sudo apt install certbot python3-certbot-nginx -y
 
 # Obtain an SSL certificate with Certbot using your email
-sudo certbot --nginx -d $domain_without_www -d www.$domain_without_www --non-interactive --agree-tos --email hello@koderstory.com
+sudo certbot --nginx -d $domain_without_www  --non-interactive --agree-tos --email hello@koderstory.com
 
 # Step 7: Reload Nginx to apply SSL
 display_message "Reloading Nginx to apply SSL..."
